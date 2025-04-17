@@ -42,9 +42,13 @@ jobs:
           
           echo "insertions=${insertions}" >> $GITHUB_ENV
           echo "deletions=${deletions}" >> $GITHUB_ENV
+
+          if ! [[ "$env_insertions" == "1" && "$env_deletions" == "0" ]]; then
+              echo "Error: The number of lines changes is not allowed.
+          fi
+
       
       - name: Merge PR
-        if: env.insertions == '1' && env.deletions == '0'
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
