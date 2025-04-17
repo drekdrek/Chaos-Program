@@ -44,7 +44,7 @@ jobs:
           echo "deletions=${deletions}" >> $GITHUB_ENV
       
       - name: Merge PR
-        if: env.insertions == '1' and env.deletions == '0'
+        if: env.insertions == '1' && env.deletions == '0'
         run: gh pr merge --auto --rebase "${{ github.event.pull_request.html_url }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
