@@ -44,7 +44,7 @@ jobs:
           echo "deletions=${deletions}" >> $GITHUB_ENV
 
           if [ "$env_insertions" -ne 1 ] && [ "$env_deletions" -ne 0 ]; then
-              echo "Error: The number of lines changes is not allowed.
+              echo "Error: The number of lines changes is not allowed."
           fi
 
       
