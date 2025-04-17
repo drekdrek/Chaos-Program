@@ -17,7 +17,7 @@ jobs:
           echo "latest_commit_author=${latest_commit_author}"
           pr_author_name="${{ github.event.pull_request.user.name }}"
           if [[ "$pr_author_name" == "$latest_commit_author" ]]; then
-            echo "Error:: The PR author is the same as the latest commit author."
+            echo "::error:: The PR author is the same as the latest commit author."
             exit 1
           fi
           
@@ -31,7 +31,7 @@ jobs:
           echo "added_characters=${added_characters}" >> $GITHUB_ENV
 
           if [[ "$added_characters" -gt 200 ]]; then
-            echo "Error: The number of characters added exceeds the maximum limit of 200."
+            echo "::error:: The number of characters added exceeds the maximum limit of 200."
             exit 1
           fi
       # adapted from https://github.com/maidsafe/pr_size_checker, licensed under MIT
@@ -43,11 +43,10 @@ jobs:
           echo "insertions=${insertions}" >> $GITHUB_ENV
           echo "deletions=${deletions}" >> $GITHUB_ENV
 
-          if [ "$env_insertions" != "1" ] && [ "$env_deletions" != "0" ] || []; then
-              echo "Error: The number of lines changes is not allowed."
-          fi
-         
-      
+          if [ "$env_insertions" != "1" ] && [ "$env_deletions" != "0" ]; then
+              echo "::error:: The number of lines changes is not allowed."
+              exit 1
+          fi     
       - name: Merge PR
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
