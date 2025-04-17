@@ -15,8 +15,8 @@ jobs:
         run: |
           latest_commit_author=$(git log -1 --pretty=format:'%an')
           echo "latest_commit_author=${latest_commit_author}" >> $GITHUB_ENV  
-          pr_author="${{ github.event.pull_request.user.login }}"
-          if [[ "$pr_author" == "${{ env.latest_commit_author }}" ]]; then
+          pr_author_name="${{ github.event.pull_request.user.name }}"
+          if [[ "$pr_author_name" == "${{ env.latest_commit_author }}" ]]; then
             echo "Error:: The PR author is the same as the latest commit author."
             exit 1
           fi
@@ -43,7 +43,7 @@ jobs:
           echo "insertions=${insertions}" >> $GITHUB_ENV
           echo "deletions=${deletions}" >> $GITHUB_ENV
 
-          if [ "$env_insertions" -ne 1 ] && [ "$env_deletions" -ne 0 ]; then
+          if [ "$env_insertions" != "1" ] && [ "$env_deletions" != "0" ]; then
               echo "Error: The number of lines changes is not allowed."
           fi
 
