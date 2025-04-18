@@ -11,19 +11,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Dump User context
-        env:
-          USER_CONTEXT: ${{ toJSON(github.event.pull_request.user) }}
-        run: echo "$USER_CONTEXT"
-
-      - name: Check if the PR author made the last commit to the repo
+      - name: Get last merged by user
+        id: get_last_merged
         run: |
-          latest_commit_author=$(git log -1 --pretty=format:'%an')
-          echo "latest_commit_author=${latest_commit_author}"
-          pr_author_name="${{ github.event.pull_request.user.name }}"
-          echo "pr_author_name=${pr_author_name}"
-          if [[ "$pr_author_name" == "$latest_commit_author" ]]; then
-            echo "::error:: The PR author is the same as the latest commit author."
+          if [ -f last_merged_by.txt ]; then
+            last_merged_user=$(cat last_merged_by.txt)
+            echo "::set-output name=last_merged_user::$last_merged_user"
+          else
+            echo "::set-output name=last_merged_user::"
+          fi
+      - name: Check if the PR author merged the last PR
+        run: |
+          pr_author_login="${{ github.event.pull_request.user.login }}"
+          echo "pr_author_login=${pr_author_login}"
+          last_merged_user="${{ steps.get_last_merged.outputs.last_merged_user }}"
+          echo "last_merged_user=${last_merged_user}"
+
+          if [[ -n "$last_merged_user" && "$pr_author_login" == "$last_merged_user" ]]; then
+            echo "::error:: The PR author (@$pr_author_login) is the same as the user who merged the last PR (@$last_merged_user)."
             exit 1
           fi
 
@@ -48,12 +53,29 @@ jobs:
           echo "$insertions"
           echo "$deletions"
           # Use the correct syntax to access environment variables
-          if ! [[ "$insertions" -eq 1 && "$deletions" -eq 0 ]] || [[ "$insertions" -eq 2 && "$deletions" -eq 1 ]]; then
+          if [ "$insertions" -ne 1 ] || [ "$deletions" -ne 0 ]; then
               echo "::error::The number of lines changes is not allowed."
               exit 1
           fi
       - name: Merge PR
-        run: gh pr merge --auto --rebase "$PR_URL"
+        id: merge_pr
+        run: |
+          if gh pr merge --auto --rebase "$PR_URL"; then
+            echo "::set-output name=merged::true"
+          else
+            echo "::set-output name=merged::false"
+          fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Store merged by user
+        if: steps.merge_pr.outputs.merged == 'true'
+        run: |
+          echo "${{ github.event.pull_request.merged_by.login }}" > last_merged_by.txt
+      - name: Upload merged by user artifact
+        if: steps.merge_pr.outputs.merged == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-merged-by-user
+          path: last_merged_by.txt
