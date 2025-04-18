@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Dump User context
+        env:
+          USER_CONTEXT: ${{ toJSON(github.event.pull_request.user) }}
+        run: echo "$USER_CONTEXT"
+
       - name: Check if the PR author made the last commit to the repo
         run: |
           latest_commit_author=$(git log -1 --pretty=format:'%an')
