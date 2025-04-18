@@ -41,6 +41,8 @@ jobs:
           insertions=$(git diff --stat origin/${{ github.event.pull_request.base.ref }} | grep -v .lock | grep -v Bin | awk '{print $1}' | sed 's/[^0-9]*//g' | paste -sd+ - | bc)
           deletions=$(git diff --stat origin/${{ github.event.pull_request.base.ref }} | grep -v .lock | grep -v Bin | awk '{print $3}' | sed 's/[^0-9]*//g' | paste -sd+ - | bc)
 
+          echo "$insertions"
+          echo "$deletions"
           # Use the correct syntax to access environment variables
           if ! [[ ("$insertions" -eq 1 && "$deletions" -eq 0) || ("$insertions" -eq 2 && "$deletions" -eq 1) ]]; then
               echo "::error:: $insertions"
