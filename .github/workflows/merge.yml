@@ -43,10 +43,8 @@ jobs:
           echo "$insertions"
           echo "$deletions"
           # Use the correct syntax to access environment variables
-          if ! [ ("$insertions" -eq 1 && "$deletions" -eq 0) || ("$insertions" -eq 2 && "$deletions" -eq 1) ]; then
-              echo "::error:: $insertions"
-              echo "::error:: $deletions"
-              echo "::error:: The number of lines changes is not allowed."
+          if ! [[ "$insertions" -eq 1 && "$deletions" -eq 0 ]] || [[ "$insertions" -eq 2 && "$deletions" -eq 1 ]]; then
+              echo "::error::The number of lines changes is not allowed."
               exit 1
           fi
       - name: Merge PR
