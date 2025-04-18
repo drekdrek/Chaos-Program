@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check if the PR author made the last commit to the repo 
+      - name: Check if the PR author made the last commit to the repo
         run: |
           latest_commit_author=$(git log -1 --pretty=format:'%an')
           echo "latest_commit_author=${latest_commit_author}"
@@ -21,7 +21,7 @@ jobs:
             echo "::error:: The PR author is the same as the latest commit author."
             exit 1
           fi
-          
+
       - name: Check if number of characters is under 200
         run: |
           # Count the number of characters added in the PR
@@ -40,12 +40,14 @@ jobs:
         run: |
           insertions=$(git diff --stat origin/${{ github.event.pull_request.base.ref }} | grep -v .lock | grep -v Bin | awk '{print $1}' | sed 's/[^0-9]*//g' | paste -sd+ - | bc)
           deletions=$(git diff --stat origin/${{ github.event.pull_request.base.ref }} | grep -v .lock | grep -v Bin | awk '{print $3}' | sed 's/[^0-9]*//g' | paste -sd+ - | bc)
-          
+
           # Use the correct syntax to access environment variables
           if ! [[ ("$insertions" -eq 1 && "$deletions" -eq 0) || ("$insertions" -eq 2 && "$deletions" -eq 1) ]]; then
+              echo "$insertions"
+              echo "$deletions"
               echo "::error:: The number of lines changes is not allowed."
               exit 1
-          fi     
+          fi
       - name: Merge PR
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
