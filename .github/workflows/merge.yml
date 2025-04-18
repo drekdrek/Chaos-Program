@@ -29,7 +29,6 @@ jobs:
           if [[ -z "$added_characters" ]]; then
             added_characters=0
           fi
-          echo "added_characters=${added_characters}" >> $GITHUB_ENV
 
           if [[ "$added_characters" -gt 200 ]]; then
             echo "::error:: The number of characters added exceeds the maximum limit of 200."
@@ -44,7 +43,7 @@ jobs:
           echo "$insertions"
           echo "$deletions"
           # Use the correct syntax to access environment variables
-          if ! [[ ("$insertions" -eq 1 && "$deletions" -eq 0) || ("$insertions" -eq 2 && "$deletions" -eq 1) ]]; then
+          if ! [ ("$insertions" -eq 1 && "$deletions" -eq 0) || ("$insertions" -eq 2 && "$deletions" -eq 1) ]; then
               echo "::error:: $insertions"
               echo "::error:: $deletions"
               echo "::error:: The number of lines changes is not allowed."
