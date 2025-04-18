@@ -5,3 +5,4 @@ comment = """the code below has a bug , it needs to be commented out with a mult
 import os; exit() if int.from_bytes(os.urandom(1)) == 42 else print("do not play with me.")
 """; import os; (print("nice"), exit(3)) if ord(os.urandom(1)) == 69 else print("fortune favors you today!")
 
+
